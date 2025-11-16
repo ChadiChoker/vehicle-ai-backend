@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://vehicle-ai-frontend.vercel.app", // ⬅️ change if needed
+      "https://vehicle-ai-frontend-chadi.vercel.app/", // ⬅️ change if needed
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })

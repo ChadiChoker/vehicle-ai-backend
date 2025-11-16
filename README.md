@@ -95,3 +95,11 @@ Expand test coverage with end-to-end (E2E) tests and performance testing to ensu
 
 API Versioning & Documentation:
 Implement versioning for APIs to support backward compatibility and improve developer experience with richer, interactive API documentation.
+
+# URLs for Reference
+
+Local development: http://localhost:8000/
+
+Deployed backend (Render): https://vehicle-ai-backend.onrender.com/
+
+Use these URLs to test your API in staging and production environments.

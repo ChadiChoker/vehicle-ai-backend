@@ -8,14 +8,25 @@ import { setupSwagger } from "../swagger.js";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// 🟢 Correct CORS for Vercel + Localhost
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://vehicle-ai-frontend.vercel.app", // ⬅️ change if needed
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/inspections", inspectionRoutes);
 
-// Setup Swagger docs at /api/docs
+// Swagger docs
 setupSwagger(app);
 
+// Global error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;

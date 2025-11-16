@@ -4,23 +4,25 @@ import { analyzeDamage } from "../services/ai.service.js";
 import { createCanvas, loadImage } from "canvas";
 import ServiceError from "../errors/serviceError.js";
 
-// Sync function, no async needed
+// ----------------------- CREATE INSPECTION -----------------------
 export const createInspection = (req, res, next) => {
   try {
     const id = "ins_" + uuid();
+
     db.inspections[id] = {
       id,
       photos: [],
       results: null,
       createdAt: Date.now(),
     };
+
     res.json({ inspectionId: id });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Sync function with validation
+// ----------------------- UPLOAD PHOTO -----------------------
 export const uploadPhoto = (req, res, next) => {
   try {
     const { id } = req.params;
@@ -40,12 +42,12 @@ export const uploadPhoto = (req, res, next) => {
     inspection.photos.push(photo);
 
     res.json(photo);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Async function with try/catch and error forwarding
+// ----------------------- ANALYZE INSPECTION -----------------------
 export const analyzeInspection = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -108,11 +110,12 @@ export const analyzeInspection = async (req, res, next) => {
     };
 
     res.json({ status: "done", results: inspection.results });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
+// ----------------------- ANNOTATE IMAGE -----------------------
 export const annotateInspectionImage = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -120,24 +123,24 @@ export const annotateInspectionImage = async (req, res, next) => {
     if (!inspection) throw new ServiceError("Inspection not found", 404);
 
     const returnPhotos = inspection.photos.filter((p) => p.type === "return");
-    if (returnPhotos.length === 0) throw new ServiceError("No return photos found", 400);
-    if (!inspection.results) throw new ServiceError("No analysis results found", 400);
+    if (returnPhotos.length === 0)
+      throw new ServiceError("No return photos found", 400);
 
-    // For demo, annotate the first return photo
+    if (!inspection.results)
+      throw new ServiceError("No analysis results found", 400);
+
     const photo = returnPhotos[0];
 
-    // Load image from base64 data URL
     const image = await loadImage(photo.url);
 
-    // Create canvas same size as image
     const canvas = createCanvas(image.width, image.height);
     const ctx = canvas.getContext("2d");
 
-    // Draw original image on canvas
     ctx.drawImage(image, 0, 0, image.width, image.height);
 
-    // Draw circles around detected damages
-    const issues = inspection.results.issues.filter(i => i.photoId === photo.photoId);
+    const issues = inspection.results.issues.filter(
+      (i) => i.photoId === photo.photoId
+    );
 
     ctx.strokeStyle = "red";
     ctx.lineWidth = 4;
@@ -146,8 +149,8 @@ export const annotateInspectionImage = async (req, res, next) => {
       if (!boundingBox) return;
       const { xmin, ymin, xmax, ymax } = boundingBox;
 
-      const centerX = (xmin + xmax) / 2 * image.width;
-      const centerY = (ymin + ymax) / 2 * image.height;
+      const centerX = ((xmin + xmax) / 2) * image.width;
+      const centerY = ((ymin + ymax) / 2) * image.height;
       const radiusX = ((xmax - xmin) / 2) * image.width;
       const radiusY = ((ymax - ymin) / 2) * image.height;
       const radius = Math.max(radiusX, radiusY);
@@ -163,11 +166,12 @@ export const annotateInspectionImage = async (req, res, next) => {
       annotatedImage: annotatedBase64,
       totalEstimatedCost: inspection.results.summary.totalEstimatedCost,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
+// ----------------------- GET RESULTS -----------------------
 export const getResults = (req, res, next) => {
   try {
     const { id } = req.params;
@@ -179,7 +183,7 @@ export const getResults = (req, res, next) => {
       photos: inspection.photos,
       results: inspection.results,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };

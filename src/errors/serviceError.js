@@ -1,9 +1,7 @@
-class ServiceError extends Error {
-  constructor(msg = "Unknown error", statusCode = 500) {
-    super(msg);
-    this.name = this.constructor.name;
+export default class ServiceError extends Error {
+  constructor(message, statusCode = 500) {
+    super(message);
+    this.name = "ServiceError";
     this.statusCode = statusCode;
   }
 }
-
-export default ServiceError;

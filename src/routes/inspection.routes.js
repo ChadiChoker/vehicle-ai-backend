@@ -13,17 +13,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @swagger
- * tags:
- *   name: Inspections
- *   description: Vehicle inspection management APIs
- */
-
-/**
- * @swagger
  * /inspections:
  *   post:
  *     summary: Create a new inspection
- *     tags: [Inspections]
+ *     tags:
+ *       - Inspections
  *     responses:
  *       200:
  *         description: Inspection created successfully
@@ -34,7 +28,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  *               properties:
  *                 inspectionId:
  *                   type: string
- *                   example: ins_1234abcd
+ *                   example: ins_123abc
  */
 router.post("/", createInspection);
 
@@ -43,7 +37,8 @@ router.post("/", createInspection);
  * /inspections/{id}/photos:
  *   post:
  *     summary: Upload a photo for an inspection
- *     tags: [Inspections]
+ *     tags:
+ *       - Inspections
  *     parameters:
  *       - in: path
  *         name: id
@@ -51,7 +46,6 @@ router.post("/", createInspection);
  *         description: Inspection ID
  *         schema:
  *           type: string
- *           example: ins_1234abcd
  *     requestBody:
  *       required: true
  *       content:
@@ -64,12 +58,10 @@ router.post("/", createInspection);
  *                 format: binary
  *               side:
  *                 type: string
- *                 description: Photo side (e.g., front, back)
- *                 example: front
+ *                 description: Side of the vehicle (e.g., front, left)
  *               type:
  *                 type: string
  *                 description: Photo type (pickup or return)
- *                 example: pickup
  *     responses:
  *       200:
  *         description: Photo uploaded successfully
@@ -80,13 +72,14 @@ router.post("/", createInspection);
  *               properties:
  *                 photoId:
  *                   type: string
- *                   example: p_5678efgh
+ *                   example: p_123abc
  *                 side:
  *                   type: string
  *                 type:
  *                   type: string
  *                 url:
  *                   type: string
+ *                   format: uri
  */
 router.post("/:id/photos", upload.single("file"), uploadPhoto);
 
@@ -94,8 +87,9 @@ router.post("/:id/photos", upload.single("file"), uploadPhoto);
  * @swagger
  * /inspections/{id}/analyze:
  *   post:
- *     summary: Analyze inspection photos for damages
- *     tags: [Inspections]
+ *     summary: Analyze the inspection photos using AI
+ *     tags:
+ *       - Inspections
  *     parameters:
  *       - in: path
  *         name: id
@@ -103,10 +97,9 @@ router.post("/:id/photos", upload.single("file"), uploadPhoto);
  *         description: Inspection ID
  *         schema:
  *           type: string
- *           example: ins_1234abcd
  *     responses:
  *       200:
- *         description: Analysis completed successfully
+ *         description: Analysis completed with results
  *         content:
  *           application/json:
  *             schema:
@@ -117,40 +110,6 @@ router.post("/:id/photos", upload.single("file"), uploadPhoto);
  *                   example: done
  *                 results:
  *                   type: object
- *                   properties:
- *                     issues:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           label:
- *                             type: string
- *                           confidence:
- *                             type: number
- *                           severity:
- *                             type: string
- *                           boundingBox:
- *                             type: object
- *                             properties:
- *                               xmin:
- *                                 type: number
- *                               ymin:
- *                                 type: number
- *                               xmax:
- *                                 type: number
- *                               ymax:
- *                                 type: number
- *                           photoId:
- *                             type: string
- *                           estimatedCost:
- *                             type: integer
- *                     summary:
- *                       type: object
- *                       properties:
- *                         totalEstimatedCost:
- *                           type: integer
  */
 router.post("/:id/analyze", analyzeInspection);
 
@@ -159,7 +118,8 @@ router.post("/:id/analyze", analyzeInspection);
  * /inspections/{id}/results:
  *   get:
  *     summary: Get inspection photos and analysis results
- *     tags: [Inspections]
+ *     tags:
+ *       - Inspections
  *     parameters:
  *       - in: path
  *         name: id
@@ -167,10 +127,9 @@ router.post("/:id/analyze", analyzeInspection);
  *         description: Inspection ID
  *         schema:
  *           type: string
- *           example: ins_1234abcd
  *     responses:
  *       200:
- *         description: Returns inspection photos and results
+ *         description: Returns inspection details with photos and results
  *         content:
  *           application/json:
  *             schema:
@@ -182,15 +141,6 @@ router.post("/:id/analyze", analyzeInspection);
  *                   type: array
  *                   items:
  *                     type: object
- *                     properties:
- *                       photoId:
- *                         type: string
- *                       side:
- *                         type: string
- *                       type:
- *                         type: string
- *                       url:
- *                         type: string
  *                 results:
  *                   type: object
  */
@@ -200,8 +150,9 @@ router.get("/:id/results", getResults);
  * @swagger
  * /inspections/{id}/annotate:
  *   get:
- *     summary: Get annotated inspection image with damage highlights
- *     tags: [Inspections]
+ *     summary: Get annotated inspection image with damage circles and costs
+ *     tags:
+ *       - Inspections
  *     parameters:
  *       - in: path
  *         name: id
@@ -209,10 +160,9 @@ router.get("/:id/results", getResults);
  *         description: Inspection ID
  *         schema:
  *           type: string
- *           example: ins_1234abcd
  *     responses:
  *       200:
- *         description: Annotated image and cost summary
+ *         description: Returns annotated image and total estimated cost
  *         content:
  *           application/json:
  *             schema:
@@ -220,9 +170,10 @@ router.get("/:id/results", getResults);
  *               properties:
  *                 annotatedImage:
  *                   type: string
- *                   description: Base64-encoded annotated image data URL
+ *                   format: uri
  *                 totalEstimatedCost:
  *                   type: integer
+ *                   example: 500
  */
 router.get("/:id/annotate", annotateInspectionImage);
 

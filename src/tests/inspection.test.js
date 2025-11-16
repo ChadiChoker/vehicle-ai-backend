@@ -31,7 +31,7 @@ describe("Inspection API", () => {
       .attach("file", Buffer.from("test"), "test.jpg");
     expect(res.statusCode).toBe(404);
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toMatch(/inspection not found/i);
+    expect(res.body.message.toLowerCase()).toContain("inspection not found");
   });
 
   test("Upload photo with valid inspection", async () => {
@@ -42,6 +42,18 @@ describe("Inspection API", () => {
       .attach("file", Buffer.from("fake-image-data"), "test.jpg");
     expect(res.statusCode).toBe(200);
     expect(res.body.photoId).toBeDefined();
+    expect(res.body.side).toBe("front");
+    expect(res.body.type).toBe("pickup");
+  });
+
+  test("Upload photo without file returns 400", async () => {
+    const res = await request(app)
+      .post(`/api/inspections/${inspectionId}/photos`)
+      .field("side", "front")
+      .field("type", "pickup");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message.toLowerCase()).toContain("no file uploaded");
   });
 
   test("Get results for valid inspection", async () => {
@@ -51,9 +63,10 @@ describe("Inspection API", () => {
     expect(Array.isArray(res.body.photos)).toBe(true);
   });
 
-  test("Get results for invalid inspection", async () => {
+  test("Get results for invalid inspection returns 404", async () => {
     const res = await request(app).get("/api/inspections/invalid_id/results");
     expect(res.statusCode).toBe(404);
     expect(res.body.success).toBe(false);
+    expect(res.body.message.toLowerCase()).toContain("inspection not found");
   });
 });

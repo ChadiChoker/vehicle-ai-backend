@@ -1,7 +1,8 @@
 import axios from "axios";
 import ServiceError from "../errors/serviceError.js";
 
-const HF_API_URL = process.env.HF_API_URL;
+const HF_API_URL =
+  "https://router.huggingface.co/hf-inference/models/facebook/detr-resnet-50";
 
 export const analyzeDamage = async (base64Image) => {
   try {
@@ -14,16 +15,12 @@ export const analyzeDamage = async (base64Image) => {
         Authorization: `Bearer ${process.env.HF_TOKEN}`,
         "Content-Type": "application/json",
       },
-      data: {
-        inputs: pureBase64,
-      },
+      data: { inputs: pureBase64 },
     });
 
     return response.data;
   } catch (err) {
-    // Wrap or rethrow error to be handled in controller's error middleware
-    const message = err.response?.data?.error || err.message || "AI service error";
-    console.error("AI error:", message);
-    throw new ServiceError(message, err.response?.status || 502);
+    console.error("AI error:", err.response?.data || err.message);
+    throw new ServiceError("AI analysis failed", 500);
   }
 };

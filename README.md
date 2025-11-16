@@ -1,23 +1,28 @@
 
 # Vehicle AI Backend
 
-This backend service provides REST APIs to create vehicle inspections, upload photos, run AI-powered damage detection, and fetch detailed results. Features include Swagger API docs, Docker support, CI integration, and seamless deployment on Render.
-
-
-
+Backend service providing RESTful APIs for vehicle inspections.
+Features include photo uploads, AI-powered damage detection, detailed results retrieval, Swagger API documentation, Docker support, CI pipeline, and automated testing.
 
 ## Getting Started
 
-Clone repo: git clone https://github.com/ChadiChoker/vehicle-ai-backend.git
+git clone https://github.com/ChadiChoker/vehicle-ai-backend.git
+cd vehicle-ai-backend
+npm install
 
-Install dependencies: npm install
-
+# Environment Variables
 Create .env file:
 
 PORT=8000
 HF_API_KEY=your_huggingface_api_key
 HF_API_URL=https://router.huggingface.co/hf-inference
+FRONTEND_URL=http://localhost:5173
 
+PORT: Port to run the backend server on (default: 8000)
+HF_TOKEN: API token for Hugging Face inference service
+FRONTEND_URL: Allowed CORS origin for frontend requests
+
+# Running the Application
 
 Run locally: npm run dev
 
@@ -40,12 +45,34 @@ POST /api/inspections/:inspectionId/analyze - Run AI damage analysis
 GET /api/inspections/:inspectionId/results - Get damage results
 
 
-## Docker
+## Docker Setup
 
-Build: docker build -t vehicle-ai-backend .
+Build Docker Image
+docker build -t vehicle-ai-backend .
 
-Run: docker run -p 8000:8000 --env-file .env vehicle-ai-backend
+Run Container
+docker run -p 8000:8000 --env-file .env vehicle-ai-backend
 
+Using Docker Compose
+docker-compose up --build
+
+The app will be accessible on http://localhost:8000.
+
+# Continuous Integration (CI)
+
+This project includes a GitHub Actions workflow (ci.yml) which:
+
+Checks out the repository
+
+Sets up Node.js environment (v20)
+
+Installs dependencies using npm ci
+
+Runs tests
+
+Builds the Docker image
+
+This ensures consistent quality checks on every push or pull request to main.
 
 ## Deployment
 
@@ -69,6 +96,31 @@ npm test
 Tests cover core API functionality and critical workflows. Ensure all tests pass before pushing changes or deploying.
 
 You can integrate these tests into your CI pipeline to enforce quality on every push.
+
+# Project Structure
+
+src/
+  controllers/
+    inspections.controller.js    # Core business logic for inspections
+  routes/
+    inspection.routes.js         # API routes with Swagger annotations
+  services/
+    ai.service.js                # AI inference integration with Hugging Face
+  middlewares/
+    errorHandler.js             # Centralized error handling middleware
+  errors/
+    serviceError.js             # Custom error class
+  utils/
+    memoryStore.js              # In-memory database simulation
+  index.js                     # Express app entry point
+swagger.js                    # Swagger setup
+tests/                        # Automated test files
+Dockerfile                    # Docker build instructions
+docker-compose.yml            # Docker Compose configuration
+ci.yml                        # GitHub Actions CI workflow
+jest.config.cjs               # Jest configuration
+.env                         # Environment variables (not committed)
+
 
 
 ## Future Improvements

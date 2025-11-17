@@ -1,14 +1,14 @@
-# Use official Node.js 20 image with native ESM support
+# Use official Node.js 20 image
 FROM node:20
 
-# Set working directory inside container
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json first (for caching)
+# Copy package files (cached install)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install only production dependencies
+RUN npm ci --omit=dev
 
 # Copy all source code
 COPY . .
@@ -16,5 +16,5 @@ COPY . .
 # Expose app port
 EXPOSE 8000
 
-# Start app with nodemon for hot reload
-CMD ["npm", "run", "dev"]
+# Start the app (no nodemon)
+CMD ["node", "src/index.js"]
